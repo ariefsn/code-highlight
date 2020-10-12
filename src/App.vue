@@ -1,32 +1,73 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+    <app-bar />
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+    <!-- notify -->
+    <notify
+      v-model="notify.show"
+      :text="notify.text"
+      :color="notify.color"
+    />
+  </v-app>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import AppBar from '@/components/AppBar'
+import { mapState, mapActions } from 'vuex'
 
-#nav {
-  padding: 30px;
+export default {
+  name: 'App',
+  components: {
+    AppBar
+  },
+  data: () => ({
+    notifyScoped: {
+      show: false,
+      text: '',
+      color: null
+    }
+  }),
+  computed: {
+    ...mapState(['notify'])
+  },
+  async mounted () {
+    await this.getOptions()
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+    if (this.getUserName()) {
+      await this.login(this.getUserName())
+    }
+  },
+  methods: {
+    ...mapActions(['getOptions']),
+    ...mapActions('user', ['login'])
+  },
+  watch: {
+    notify: {
+      handler (v) {
+        if (v) {
+          if (v.show) {
+            this.notifyScoped.show = v.show
+            this.notifyScoped.text = v.text
+            this.notifyScoped.color = v.color
+          }
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    notifyScoped: {
+      handler (v) {
+        if (v) {
+          if (!v.show) {
+            this.resetNotify()
+          }
+        }
+      },
+      deep: true,
+      immediate: true
     }
   }
 }
-</style>
+</script>
