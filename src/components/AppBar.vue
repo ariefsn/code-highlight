@@ -10,6 +10,15 @@
 
     <v-spacer></v-spacer>
 
+    <v-btn
+      tile
+      small
+      text
+      to="/"
+    >
+      <span>Home</span>
+    </v-btn>
+
     <v-dialog
       v-if="!profile"
       v-model="showFormLogin"

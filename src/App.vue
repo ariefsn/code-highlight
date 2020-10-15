@@ -67,6 +67,9 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    '$route' (to, from) {
+      document.title = to.meta.title || process.env.VUE_APP_NAME
     }
   }
 }

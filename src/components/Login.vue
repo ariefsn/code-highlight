@@ -32,15 +32,6 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn
-        color="red darken-1"
-        text
-        small
-        tile
-        @click="closeDialog"
-      >
-        Cancel
-      </v-btn>
-      <v-btn
         color="green darken-1"
         text
         small
@@ -48,6 +39,15 @@
         @click="submit"
       >
         {{ activeMenu === 0 ? 'Login' : 'Register' }}
+      </v-btn>
+      <v-btn
+        color="red darken-1"
+        text
+        small
+        tile
+        @click="closeDialog"
+      >
+        Cancel
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -67,19 +67,18 @@ export default {
     ...mapActions('user', ['register', 'login']),
     reset (form = null) {
       this.username = ''
+      console.log(form)
       if (form) {
         form.reset()
         return
       }
-      this.$refs.form.reset()
+      if (this.$refs.form) this.$refs.form.reset()
     },
-    closeDialog (form = null) {
-      this.reset(form)
+    closeDialog () {
       this.$emit('onClose')
     },
     async submit () {
       const form = this.$refs.form
-      console.log('01 =>', form)
       const valid = await form.validate()
       if (!valid) {
         const { errors } = await this.$refs.username.validate()
@@ -107,7 +106,8 @@ export default {
           localStorage.setItem('userName', res.data.name)
         }
 
-        this.closeDialog(form)
+        this.reset(form)
+        this.closeDialog()
 
         this.showNotify(`Welcome to the club, ${res.data.name}`, 'success')
       }

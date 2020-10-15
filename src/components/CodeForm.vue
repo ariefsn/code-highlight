@@ -97,6 +97,7 @@ export default {
   },
   data: () => ({
     file: {
+      id: '',
       lang: '',
       twoslash: '',
       fileName: '',
@@ -157,6 +158,8 @@ export default {
       const params = []
 
       for (var key in this.file) {
+        if (key.toLowerCase() === 'id') continue
+
         if (this.file[key]) {
           params.push(`${key}=${this.file[key]}`)
         }
@@ -175,9 +178,15 @@ export default {
 
         if (res.data.success && !res.data.error) {
           if (this.save) {
-            const resSave = await this.saveToUser()
+            let resSave = null
+            if (this.initialData) {
+              resSave = await this.update()
+            } else {
+              resSave = await this.saveToUser()
+            }
+
             if (resSave.status) {
-              this.showNotify('Nice! Code saved!', 'success')
+              this.showNotify(`Nice! Code ${this.initialData ? 'updated' : 'saved'}!`, 'success')
             } else {
               this.showNotify(resSave.message, 'red')
             }
@@ -190,12 +199,53 @@ export default {
       }
 
       this.$emit('postSubmit', res)
+    },
+    async update () {
+      if (!this.getUserId()) {
+        return
+      }
+
+      const temp = JSON.parse(JSON.stringify(this.file))
+
+      delete temp.id
+
+      const payload = {
+        id: this.file.id,
+        user: this.getUserId(),
+        content: {
+          ...temp,
+          code: this.code
+        }
+      }
+
+      for (const key in payload.content) {
+        if (!payload.content[key]) {
+          delete payload.content[key]
+        }
+      }
+
+      try {
+        const res = await this.$axios.post('/code/edit', payload)
+
+        return Promise.resolve({
+          status: res.data.success && !res.data.error,
+          data: res.data.data,
+          message: res.data.message
+        })
+      } catch (error) {
+        return Promise.resolve({
+          status: false,
+          data: null,
+          message: error
+        })
+      }
     }
   },
   watch: {
     initialData: {
       handler (v) {
         if (v) {
+          this.file.id = v.id
           this.file.lang = v.lang
           this.file.twoslash = v.twoslash
           this.file.fileName = v.fileName

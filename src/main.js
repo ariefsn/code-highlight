@@ -16,6 +16,7 @@ import Notify from '@/components/Notify'
 import Loading from '@/components/Loading'
 import CodeForm from '@/components/CodeForm'
 import CodePreview from '@/components/CodePreview'
+import Highlighter from '@/components/Highlighter'
 
 Object.keys(rules).forEach(rule => {
   extend(rule, {
@@ -35,6 +36,7 @@ Vue.component(Notify.name, Notify)
 Vue.component(Loading.name, Loading)
 Vue.component(CodeForm.name, CodeForm)
 Vue.component(CodePreview.name, CodePreview)
+Vue.component(Highlighter.name, Highlighter)
 
 Vue.mixin(mixin)
 
